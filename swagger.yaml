@@ -74,11 +74,6 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
-    patch:
-      tags:
-        - Solutions
-      summary: Updates selected fields of a solution
-      description: Replaces the included fields of the solution with the new data
     delete:
       tags:
         - Solutions
@@ -284,7 +279,23 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
-       
+    delete:
+      tags:
+        - Applications
+      summary: Deletes a single version of an application
+      description: For the application represented by `applicationId`, deletes the version represented by `versionKey`, including associated templates. This operation is not permitted if there are existing implementations of the application version.
+      parameters:
+        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/VersionKeyPathParam'
+      responses:
+        '204':
+          description: Success
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
   /applications/{applicationId}/versions/{versionKey}/templates:
     get:
       tags:
@@ -332,7 +343,24 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
-  /implementations:
+  /templates/{templateId}:
+    delete:
+      tags:
+        - Templates
+      summary: Deletes a single template
+      description: A template declares a source asset to be bundled in a version of an application. This endpoint will delete the template, removing the associated asset from the application version. This is not permitted if there are existing implementations of the template.
+      parameters:
+        - $ref: '#/components/parameters/TemplateIdPathParam'
+      responses:
+        '204':
+          description: Success
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+  /solution_implementations:
     get:
       tags:
         - Implementations
@@ -349,8 +377,10 @@ paths:
     post:
       tags:
         - Implementations
-      summary: Creates a new implementation of a solution, along with related application and template implementations
+      summary: Creates a new implementation of a solution, along with related application and template implementations.
       requestBody:
+        description: >
+          `solutionId` selects the solution to deploy. `targetDomainId` selects the domain to which to deploy assets. `applicationVersions` must be a mapping of applicationId to applicationVersionKey, and this will selected which version of each application to deploy. If any application in the solution is excluded from this mapping, the most recent active version will be deployed.
         content:
           application/json:
             schema:
@@ -360,8 +390,64 @@ paths:
                   type: integer
                 targetDomainId:
                   type: integer
+                applicationVersions:
+                  type: object
+                  additionalProperties: true
+                  example:
+                    13: 'V1'
+                    14: 'V3'
+      responses:
+        '201':
+          description: Success
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+  /solution_implementations/{implementationId}:
+    get:
+      tags:
+        - Implementations
+      summary: Reads a single implementation
+      description: Retrieves data regarding the implementation of a solution, including which application versions are included and what the status of each template implementation is
+      parameters:
+        - $ref: '#/components/parameters/ImplementationIdPathParam'
       responses:
         '200':
+          $ref: '#/components/responses/GetImplementationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Implementations
+      summary: Deletes an implementation stack
+      description: Deletes a solution implementation, along with associated application implementations and template implementations. At the asset level, this will only disassociate the target assets that have already been deployed from the source assets. It will not delete the deployed assets from the target domain. To clean up already-deployed assets from the target domain, the `/solutionImplementations/{implementationId}/cleanup` endpoint should be used after deleting 
+      parameters:
+        - $ref: '#/components/parameters/ImplementationIdPathParam'
+      responses:
+        '204':
+          description: Success
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+  /solution_implementations/{implementationId}/cleanup:
+    post:
+      tags:
+        - Implementations
+      summary: Removes deployed assets associated with an implementation
+      description: For the implementation represented by `implementationId`, deletes deployed assets from the target domain
+      parameters:
+        - $ref: '#/components/parameters/ImplementationIdPathParam'
+      responses:
+        '204':
           description: Success
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
@@ -429,6 +515,13 @@ components:
       name: applicationId
       in: path
       description: Application ID
+      required: true
+      schema:
+        type: integer
+    TemplateIdPathParam:
+      name: templateId
+      in: path
+      description: Template ID
       required: true
       schema:
         type: integer
@@ -582,4 +675,60 @@ components:
                       type: array
                       items:
                         $ref: '#/components/schemas/ApplicationVersion'
-              
+    GetImplementationResponse:
+      description: A response object representing the implementation of a solution on a target domain, including deployed application versions and templates
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              targetDomainId:
+                type: integer
+              targetDomainCName:
+                type: string
+              solutionId:
+                type: integer
+              solutionName:
+                type: string
+              applications:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    applicationId:
+                      type: integer
+                    applicationName:
+                      type: string
+                    applicationShortCode:
+                      type: string
+                    applicationVersionKey:
+                      type: string
+                    applicationVersionName:
+                      type: string
+                    applicationSourceDomainId:
+                      type: integer
+                    applicationSourceDomainCName:
+                      type: string
+                    status:
+                      type: string
+                      enum: [active, inactive]
+                    templates:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          sourceAssetUid:
+                            type: string
+                          sourceAssetName:
+                            type: string
+                          sourceDomainId:
+                            type: integer
+                          sourceDomainCName:
+                            type: string
+                          targetAssetUid:
+                            type: string
+                          status:
+                            type: string
+                            enum: [requested, pending, completed, failed]
+                          statusReason:
+                            type: string
