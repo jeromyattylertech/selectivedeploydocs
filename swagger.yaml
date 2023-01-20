@@ -78,7 +78,7 @@ paths:
       tags:
         - Solutions
       summary: Deletes a solution
-      description: Deletes the solution specified by the given ID, along with any applications and templates associated with it. A solution with existing implementations cannot be deleted
+      description: Soft-deletes the solution specified by the given ID, and soft-cascade-deletes any applications and templates associated with it. A solution with existing implementations cannot be deleted. 
       responses:
         '204':
           description: Success
@@ -144,7 +144,7 @@ paths:
       tags:
         - Applications
       summary: Deletes a single application
-      description: Soft-deletes the application specified by `applicationId`, including any versions or templates associated with it. An application with existing implementations cannot be deleted.
+      description: Soft-deletes the application specified by `applicationId`, and soft-cascade-deletes any versions or templates associated with it. An application with existing implementations cannot be deleted.
       parameters:
         - $ref: '#/components/parameters/ApplicationIdPathParam'
       responses:
@@ -283,7 +283,7 @@ paths:
       tags:
         - Applications
       summary: Deletes a single version of an application
-      description: For the application represented by `applicationId`, deletes the version represented by `versionKey`, including associated templates. This operation is not permitted if there are existing implementations of the application version.
+      description: For the application represented by `applicationId`, soft-deletes the version represented by `versionKey`, and soft-cascade-deletes any associated templates. This operation is not permitted if there are existing implementations of the application version.
       parameters:
         - $ref: '#/components/parameters/ApplicationIdPathParam'
         - $ref: '#/components/parameters/VersionKeyPathParam'
@@ -348,7 +348,7 @@ paths:
       tags:
         - Templates
       summary: Deletes a single template
-      description: A template declares a source asset to be bundled in a version of an application. This endpoint will delete the template, removing the associated asset from the application version. This is not permitted if there are existing implementations of the template.
+      description: A template declares a source asset to be bundled in a version of an application. This endpoint will soft-delete the template, removing the associated asset from the application version. This is not permitted if there are existing implementations of the template.
       parameters:
         - $ref: '#/components/parameters/TemplateIdPathParam'
       responses:
@@ -532,6 +532,13 @@ components:
       required: true
       schema:
         type: string
+    ImplementationIdPathParam:
+      name: implementationId
+      in: path
+      description: Implementation ID
+      required: true
+      schema:
+        type: integer
     StatusQueryParam:
       name: status
       in: query
