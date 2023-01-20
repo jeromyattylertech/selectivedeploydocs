@@ -140,6 +140,35 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
+    put:
+      tags:
+        - Applications
+      summary: Updates a single application
+      description: Replaces the application data with the data supplied in the request. Can only be used to edit data at the application level.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                shortCode:
+                  type: string
+                status:
+                  type: string
+                  enum: [active, inactive]
+      parameters:
+        - $ref: '#/components/parameters/ApplicationIdPathParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApplicationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
     delete:
       tags:
         - Applications
@@ -172,17 +201,9 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    versionKey:
-                      type: string
-                    versionName:
-                      type: string
-                    templates:
-                      type: array
-                      items:
-                        type: string
-                        pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                  allOf:
+                    - $ref: '#/components/schemas/ApplicationVersion'
+                    - $ref: '#/components/schemas/Metadata'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
@@ -205,6 +226,8 @@ paths:
                   type: string
                 versionName:
                   type: string
+                default:
+                  type: boolean
                 templates:
                   type: array
                   items:
@@ -218,23 +241,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  solutionName:
-                    type: string
-                  applicationName:
-                    type: string
-                  applicationShortCode:
-                    type: string
-                  versionKey:
-                    type: string
-                  versionName:
-                    type: string
-                  templates:
-                    type: array
-                    items:
-                      type: string
-                      pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                allOf:
+                  - $ref: '#/components/schemas/ApplicationVersion'
+                  - $ref: '#/components/schemas/Metadata'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
@@ -256,23 +265,44 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  solutionName:
-                    type: string
-                  applicationName:
-                    type: string
-                  applicationShortCode:
-                    type: string
-                  versionKey:
-                    type: string
-                  versionName:
-                    type: string
-                  templates:
-                    type: array
-                    items:
-                      type: string
-                      pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                allOf:
+                  - $ref: '#/components/schemas/ApplicationVersion'
+                  - $ref: '#/components/schemas/Metadata'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - Applications
+      summary: Updates a single version of an application
+      description: For the application represented by `applicationId` and the version represented by `versionKey`, this endpoint replaces the application version data with the provided data. This can only be used to edit data at the application version level
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                versionName:
+                  type: string
+                versionKey:
+                  type: string
+                status:
+                  type: string
+                  enum: [active, inactive]
+      parameters:
+        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/VersionKeyPathParam'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApplicationVersion'
+                  - $ref: '#/components/schemas/Metadata'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
@@ -380,7 +410,7 @@ paths:
       summary: Creates a new implementation of a solution, along with related application and template implementations.
       requestBody:
         description: >
-          `solutionId` selects the solution to deploy. `targetDomainId` selects the domain to which to deploy assets. `applicationVersions` must be a mapping of applicationId to applicationVersionKey, and this will selected which version of each application to deploy. If any application in the solution is excluded from this mapping, the most recent active version will be deployed.
+          `solutionId` selects the solution to deploy. `targetDomainId` selects the domain to which to deploy assets. `applicationVersions` must be a mapping of applicationId to applicationVersionKey, and this will selected which version of each application to deploy. If any application in the solution is excluded from this mapping, that application will not be implemented.
         content:
           application/json:
             schema:
@@ -491,6 +521,8 @@ components:
         status:
           type: string
           enum: [active, inactive]
+        default:
+          type: boolean
         templates:
           $ref: '#/components/schemas/Template'
     Template:
@@ -503,6 +535,24 @@ components:
         sourceUid:
           type: string
           pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+    Metadata:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        deletedAt:
+          type: string
+          format: date-time
+        deletedBy:
+          type: string
   parameters:
     SolutionIdPathParam:    
       name: solutionId
@@ -563,7 +613,7 @@ components:
           schema:
             $ref: '#/components/schemas/Solution'
     ApplicationRequest:
-      description: An object representing the application to be created. Should include `applicationId` only if this is a new version of an existing application
+      description: An object representing the application to be created.
       required: true
       content:
         application/json:
@@ -613,13 +663,11 @@ components:
                             versions:
                               type: array
                               items:
-                                $ref: '#/components/schemas/ApplicationVersion'
-                  createdAt:
-                    type: string
-                    format: date-time
-                  updatedAt:
-                    type: string
-                    format: date-time
+                                allOf:
+                                  - $ref: '#/components/schemas/ApplicationVersion'
+                                  - $ref: '#/components/schemas/Metadata'
+                        - $ref: '#/components/schemas/Metadata'
+              - $ref: '#/components/schemas/Metadata'
     SolutionsResponse:
       description: A response object describing a list of solutions, including data regarding applications and templates
       content:
@@ -643,13 +691,11 @@ components:
                               versions:
                                 type: array
                                 items:
-                                  $ref: '#/components/schemas/ApplicationVersion'
-                    createdAt:
-                      type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                                  allOf:
+                                    - $ref: '#/components/schemas/ApplicationVersion'
+                                    - $ref: '#/components/schemas/Metadata'
+                          - $ref: '#/components/schemas/Metadata'
+                - $ref: '#/components/schemas/Metadata'
     ApplicationResponse:
       description: A response object describing a single application, including data regarding versions and templates
       content:
@@ -664,7 +710,10 @@ components:
                   versions:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ApplicationVersion'
+                      allOf:
+                        - $ref: '#/components/schemas/ApplicationVersion'
+                        - $ref: '#/components/schemas/Metadata'
+              - $ref: '#/components/schemas/Metadata'
     ApplicationsResponse:
       description: A response object describing a list of applications, including data regarding versions and templates
       content:
@@ -681,7 +730,10 @@ components:
                     versions:
                       type: array
                       items:
-                        $ref: '#/components/schemas/ApplicationVersion'
+                        allOf:
+                          - $ref: '#/components/schemas/ApplicationVersion'
+                          - $ref: '#/components/schemas/Metadata'
+                - $ref: '#/components/schemas/Metadata'
     GetImplementationResponse:
       description: A response object representing the implementation of a solution on a target domain, including deployed application versions and templates
       content:
