@@ -336,7 +336,7 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
-  /applications/{applicationId}/versions/{versionKey}:
+  /applications/{applicationId}/versions/{versionId}:
     get:
       tags:
         - Applications
@@ -344,7 +344,7 @@ paths:
       description: Returns the details of the version specified by `versionKey`, which is unique for a single application. Includes templates associated with the application version
       parameters:
         - $ref: '#/components/parameters/ApplicationIdPathParam'
-        - $ref: '#/components/parameters/VersionKeyPathParam'
+        - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '200':
           description: A response object representing a single version of an application, including templates
@@ -380,7 +380,7 @@ paths:
                   enum: [active, inactive]
       parameters:
         - $ref: '#/components/parameters/ApplicationIdPathParam'
-        - $ref: '#/components/parameters/VersionKeyPathParam'
+        - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '200':
           content:
@@ -402,7 +402,7 @@ paths:
       description: For the application represented by `applicationId`, soft-deletes the version represented by `versionKey`, and soft-cascade-deletes any associated templates. This operation is not permitted if there are existing implementations of the application version.
       parameters:
         - $ref: '#/components/parameters/ApplicationIdPathParam'
-        - $ref: '#/components/parameters/VersionKeyPathParam'
+        - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '204':
           description: Success
@@ -412,14 +412,14 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
-  /applications/{applicationId}/versions/{versionKey}/templates:
+  /applications/{applicationId}/versions/{versionId}/templates:
     get:
       tags:
         - Templates
       summary: Returns all templates associated with a single version of an application
       parameters:
         - $ref: '#/components/parameters/ApplicationIdPathParam'
-        - $ref: '#/components/parameters/VersionKeyPathParam'
+        - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '200':
           content:
@@ -440,7 +440,7 @@ paths:
       summary: Adds a template to a version of an application
       parameters:
         - $ref: '#/components/parameters/ApplicationIdPathParam'
-        - $ref: '#/components/parameters/VersionKeyPathParam'
+        - $ref: '#/components/parameters/VersionIdPathParam'
       requestBody:
         content:
           application/json:
@@ -554,6 +554,21 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
+  /solution_implementations/{implementationId}/templates:
+    get:
+      tags:
+        - Implementations
+      summary: Reads all templates that are to be deployed by a solution implementation
+      parameters:
+        - $ref: '#/components/parameters/ImplementationIdPathParam'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Template'
   /solution_implementations/{implementationId}/cleanup:
     post:
       tags:
@@ -621,6 +636,8 @@ components:
         sourceUid:
           type: string
           pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+        cadence:
+          type: string
     Metadata:
       type: object
       properties:
@@ -661,10 +678,10 @@ components:
       required: true
       schema:
         type: integer
-    VersionKeyPathParam:
-      name: versionKey
+    VersionIdPathParam:
+      name: versionId
       in: path
-      description: Version Key (unique for a single application)
+      description: Version ID (unique for a single application)
       required: true
       schema:
         type: string
