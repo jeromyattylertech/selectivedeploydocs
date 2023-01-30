@@ -88,6 +88,92 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
+  /solutions/{solutionId}/version_labels:
+    get:
+      tags:
+        - Solutions
+      summary: Reads all available version labels for a solution's applications
+      description: A collection of application version labels to choose from when versioning applications is maintained for each solution. This will return all the available version labels for the specified solution.
+      parameters:
+        - $ref: '#/components/parameters/SolutionIdPathParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    version_name:
+                      type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - Solutions
+      summary: Creates a new version label to be used for a solution's applications
+      parameters:
+        - $ref: '#/components/parameters/SolutionIdPathParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                versionName:
+                  type: string
+      responses:
+        '201':
+          description: Created
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+  /version_labels/{versionLabelId}:
+    put:
+      tags:
+        - Solutions
+      summary: Updates an existing version label
+      parameters:
+        - $ref: '#/components/parameters/VersionLabelIdPathParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                versionName:
+                  type: string
+      responses:
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Solutions
+      summary: Deletes a version label
+      parameters:
+        - $ref: '#/components/parameters/VersionLabelIdPathParam'
+      responses:
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '500':
+          description: Internal server error
   /solutions/{solutionId}/applications:
     get:
       tags:
@@ -602,6 +688,13 @@ components:
       in: query
       description: Division ID filter
       required: false
+      schema:
+        type: integer
+    VersionLabelIdPathParam:
+      name: versionLabelId
+      in: path
+      description: Version Label ID
+      required: true
       schema:
         type: integer
   requestBodies:
