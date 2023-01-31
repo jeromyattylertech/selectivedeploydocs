@@ -41,14 +41,14 @@ paths:
           $ref: '#/components/responses/ForbiddenResponse'
         '500':
           description: Internal server error
-  /solutions/{solutionId}:
+  /solutions/{solutionUid}:
     get:
       tags:
         - Solutions
       summary: Returns a single solution
       description: Returns the solution represented by the given ID
       parameters:
-        - $ref: '#/components/parameters/SolutionIdPathParam'
+        - $ref: '#/components/parameters/SolutionUidPathParam'
       responses:
         '200':
           $ref: '#/components/responses/SolutionResponse'
@@ -56,6 +56,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     put:
@@ -63,6 +65,8 @@ paths:
         - Solutions
       summary: Updates a solution
       description: Replaces the existing solution represented by the ID with the new data
+      parameters:
+        - $ref: '#/components/parameters/SolutionUidPathParam'
       requestBody:
         $ref: '#/components/requestBodies/SolutionRequest'
       responses:
@@ -72,6 +76,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     delete:
@@ -79,6 +85,8 @@ paths:
         - Solutions
       summary: Deletes a solution
       description: Soft-deletes the solution specified by the given ID, and soft-cascade-deletes any applications and templates associated with it. A solution with existing implementations cannot be deleted. 
+      parameters:
+        - $ref: '#/components/parameters/SolutionUidPathParam'
       responses:
         '204':
           description: Success
@@ -86,16 +94,18 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
-  /solutions/{solutionId}/version_labels:
+  /solutions/{solutionUid}/version_labels:
     get:
       tags:
         - Solutions
       summary: Reads all available version labels for a solution's applications
       description: A collection of application version labels to choose from when versioning applications is maintained for each solution. This will return all the available version labels for the specified solution.
       parameters:
-        - $ref: '#/components/parameters/SolutionIdPathParam'
+        - $ref: '#/components/parameters/SolutionUidPathParam'
       responses:
         '200':
           description: Success
@@ -108,12 +118,14 @@ paths:
                   properties:
                     id:
                       type: integer
-                    version_name:
+                    versionName:
                       type: string
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     post:
@@ -121,7 +133,7 @@ paths:
         - Solutions
       summary: Creates a new version label to be used for a solution's applications
       parameters:
-        - $ref: '#/components/parameters/SolutionIdPathParam'
+        - $ref: '#/components/parameters/SolutionUidPathParam'
       requestBody:
         content:
           application/json:
@@ -137,6 +149,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
   /version_labels/{versionLabelId}:
@@ -155,10 +169,14 @@ paths:
                 versionName:
                   type: string
       responses:
+        '200':
+          description: Success
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     delete:
@@ -168,20 +186,24 @@ paths:
       parameters:
         - $ref: '#/components/parameters/VersionLabelIdPathParam'
       responses:
+        '204':
+          description: Success
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
-  /solutions/{solutionId}/applications:
+  /solutions/{solutionUid}/applications:
     get:
       tags:
         - Applications
       summary: Reads all applications for a solution
       description: Returns a list of all applications associated with the specified solution, including template data
       parameters:
-        - $ref: '#/components/parameters/SolutionIdPathParam'
+        - $ref: '#/components/parameters/SolutionUidPathParam'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationsResponse'
@@ -189,6 +211,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     post:
@@ -197,7 +221,7 @@ paths:
       summary: Adds an application to a solution
       description: Creates a new application associated with the solution represented by `solutionId`. 
       parameters:
-        - $ref: '#/components/parameters/SolutionIdPathParam'
+        - $ref: '#/components/parameters/SolutionUidPathParam'
       requestBody:
         $ref: '#/components/requestBodies/ApplicationRequest'
       responses:
@@ -207,16 +231,18 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
-  /applications/{applicationId}:
+  /applications/{applicationUid}:
     get:
       tags:
         - Applications
       summary: Returns the details of a single application
       description: Retrieves version and related template data for the application represented by `applicationId`
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
@@ -224,6 +250,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     put:
@@ -241,11 +269,10 @@ paths:
                   type: string
                 shortCode:
                   type: string
-                status:
-                  type: string
-                  enum: [active, inactive]
+                enabled:
+                  type: boolean
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationResponse'
@@ -253,6 +280,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     delete:
@@ -261,7 +290,7 @@ paths:
       summary: Deletes a single application
       description: Soft-deletes the application specified by `applicationId`, and soft-cascade-deletes any versions or templates associated with it. An application with existing implementations cannot be deleted.
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
       responses:
         '204':
           description: Success
@@ -269,16 +298,18 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
-  /applications/{applicationId}/versions:
+  /applications/{applicationUid}/versions:
     get:
       tags:
         - Applications
       summary: Reads all versions of a single application
       description: Returns a list of detail objects for all versions of an application, including data regarding the templates associated with each version
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
       responses:
         '200':
           description: A response object representing a list of application versions, including associated templates
@@ -288,12 +319,18 @@ paths:
                 type: array
                 items:
                   allOf:
+                    - type: object
+                      properties:
+                        applicationName:
+                          type: string
                     - $ref: '#/components/schemas/ApplicationVersion'
                     - $ref: '#/components/schemas/Metadata'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     post:
@@ -308,19 +345,26 @@ paths:
             schema:
               type: object
               properties:
-                versionKey:
-                  type: string
-                versionName:
-                  type: string
-                default:
+                versionId:
+                  type: integer
+                enabled:
+                  type: boolean
+                isDefaultVersion:
                   type: boolean
                 templates:
                   type: array
                   items:
-                    type: string
-                    pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                    type: object
+                    properties:
+                      sourceViewUid:
+                        type: string
+                        pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                      sourceDomainCname:
+                        type: string
+                      cadence:
+                        type: string
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
       responses:
         '201':
           description: A response object representing the application version created
@@ -334,16 +378,18 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
-  /applications/{applicationId}/versions/{versionId}:
+  /applications/{applicationUid}/versions/{versionId}:
     get:
       tags:
         - Applications
       summary: Reads a single version of the specified application
       description: Returns the details of the version specified by `versionKey`, which is unique for a single application. Includes templates associated with the application version
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
         - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '200':
@@ -352,12 +398,18 @@ paths:
             application/json:
               schema:
                 allOf:
+                  - type: object
+                    properties:
+                      applicationName:
+                        type: string
                   - $ref: '#/components/schemas/ApplicationVersion'
                   - $ref: '#/components/schemas/Metadata'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     put:
@@ -371,15 +423,14 @@ paths:
             schema:
               type: object
               properties:
-                versionName:
-                  type: string
-                versionKey:
-                  type: string
-                status:
-                  type: string
-                  enum: [active, inactive]
+                versionId:
+                  type: integer
+                enabled:
+                  type: boolean
+                isDefaultVersion:
+                  type: boolean
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
         - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '200':
@@ -387,12 +438,18 @@ paths:
             application/json:
               schema:
                 allOf:
+                  - type: object
+                    properties:
+                      applicationName:
+                        type: string
                   - $ref: '#/components/schemas/ApplicationVersion'
                   - $ref: '#/components/schemas/Metadata'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     delete:
@@ -401,7 +458,7 @@ paths:
       summary: Deletes a single version of an application
       description: For the application represented by `applicationId`, soft-deletes the version represented by `versionKey`, and soft-cascade-deletes any associated templates. This operation is not permitted if there are existing implementations of the application version.
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
         - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '204':
@@ -410,15 +467,17 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
-  /applications/{applicationId}/versions/{versionId}/templates:
+  /applications/{applicationUid}/versions/{versionId}/templates:
     get:
       tags:
         - Templates
       summary: Returns all templates associated with a single version of an application
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
         - $ref: '#/components/parameters/VersionIdPathParam'
       responses:
         '200':
@@ -432,6 +491,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     post:
@@ -439,13 +500,21 @@ paths:
         - Templates
       summary: Adds a template to a version of an application
       parameters:
-        - $ref: '#/components/parameters/ApplicationIdPathParam'
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
         - $ref: '#/components/parameters/VersionIdPathParam'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Template'
+              type: object
+              properties:
+                sourceDomainCname:
+                  type: string
+                sourceViewUid:
+                  type: string
+                  pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                cadence:
+                  type: string
       responses:
         '201':
           description: A response object representing the created template
@@ -457,15 +526,19 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
-  /templates/{templateId}:
+  /applications/{applicationUid}/versions/{versionId}/templates/{templateId}:
     delete:
       tags:
         - Templates
-      summary: Deletes a single template
-      description: A template declares a source asset to be bundled in a version of an application. This endpoint will soft-delete the template, removing the associated asset from the application version. This is not permitted if there are existing implementations of the template.
+      summary: Deletes a single template from an application version
+      description: A template described an existing asset on a source domain. This endpoint will remove the specified template from the application version. This is not permitted if there are implementations of this application version
       parameters:
+        - $ref: '#/components/parameters/ApplicationUidPathParam'
+        - $ref: '#/components/parameters/VersionIdPathParam'
         - $ref: '#/components/parameters/TemplateIdPathParam'
       responses:
         '204':
@@ -474,6 +547,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
   /solution_implementations:
@@ -488,6 +563,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     post:
@@ -519,6 +596,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
   /solution_implementations/{implementationId}:
@@ -536,6 +615,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
     delete:
@@ -552,6 +633,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
   /solution_implementations/{implementationId}/templates:
@@ -584,6 +667,8 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
           $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
 
@@ -594,46 +679,50 @@ components:
       properties:
         name:
           type: string
+        uid:
+          type: string
+          pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
         division_id:
           type: integer
-        status:
-          type: string
-          enum: [active, inactive]
+        enabled:
+          type: boolean
     Application:
       type: object
       properties:
-        solutionId:
-          type: integer
         name:
           type: string
+        uid:
+          type: string
+          pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
         shortCode:
           type: string
-        sourceDomainId:
-          type: integer
+        sourceDomainCname:
+          type: string
+        enabled:
+          type: boolean
     ApplicationVersion:
       type: object
       properties:
-        applicationId:
-          type: integer
-        versionKey:
+        versionId:
           type: string
         versionName:
           type: string
-        status:
-          type: string
-          enum: [active, inactive]
-        default:
+        enabled:
+          type: boolean
+        isDefaultVersion:
           type: boolean
         templates:
-          $ref: '#/components/schemas/Template'
+          type: array
+          items:
+            $ref: '#/components/schemas/Template'
     Template:
       type: object
       properties:
-        applicationVersionId:
+        templateId:
           type: integer
-        sourceDomainId:
-          type: integer
-        sourceUid:
+        sourceDomainCname:
+          type: string
+        sourceViewUid:
           type: string
           pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
         cadence:
@@ -657,20 +746,22 @@ components:
         deletedBy:
           type: string
   parameters:
-    SolutionIdPathParam:    
-      name: solutionId
+    SolutionUidPathParam:    
+      name: solutionUid
       in: path
-      description: Solution ID
+      description: Solution UID
       required: true
       schema:
-        type: integer
-    ApplicationIdPathParam:
-      name: applicationId
+        type: string
+        pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+    ApplicationUidPathParam:
+      name: applicationUid
       in: path
-      description: Application ID
+      description: Application UID
       required: true
       schema:
-        type: integer
+        type: string
+        pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
     TemplateIdPathParam:
       name: templateId
       in: path
@@ -734,14 +825,10 @@ components:
                 type: string
               shortCode:
                 type: string
-              sourceDomainId:
-                type: integer
-              applicationId:
-                type: integer
-              versionKey:
+              sourceDomainCname:
                 type: string
-              versionName:
-                type: string
+              firstVersionId:
+                type: integer
               templates:
                 type: array
                 items:
@@ -752,6 +839,8 @@ components:
       description: Unauthorized– Invalid credentials
     ForbiddenResponse:
       description: Forbidden– User does not have sufficient permissions
+    NotFoundResponse:
+      description: Not Found
     SolutionResponse:
       description: An response object describing a single solution, including data regarding applications and templates
       content:
@@ -761,8 +850,6 @@ components:
               - $ref: '#/components/schemas/Solution'
               - type: object
                 properties:
-                  id: 
-                    type: integer
                   applications:
                     type: array
                     items:
@@ -789,8 +876,6 @@ components:
                 - $ref: '#/components/schemas/Solution'
                 - type: object
                   properties:
-                    id: 
-                      type: integer
                     applications:
                       type: array
                       items:
@@ -890,8 +975,8 @@ components:
                             type: string
                           sourceAssetName:
                             type: string
-                          sourceDomainId:
-                            type: integer
+                          sourceDomainCname:
+                            type: string
                           sourceDomainCName:
                             type: string
                           targetAssetUid:
