@@ -351,6 +351,8 @@ paths:
                   type: boolean
                 isDefaultVersion:
                   type: boolean
+                sourceDomainCname:
+                  type: string
                 templates:
                   type: array
                   items:
@@ -429,6 +431,8 @@ paths:
                   type: boolean
                 isDefaultVersion:
                   type: boolean
+                sourceDomainCname:
+                  type: string
       parameters:
         - $ref: '#/components/parameters/ApplicationUidPathParam'
         - $ref: '#/components/parameters/VersionIdPathParam'
@@ -696,8 +700,6 @@ components:
           pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
         shortCode:
           type: string
-        sourceDomainCname:
-          type: string
         enabled:
           type: boolean
     ApplicationVersion:
@@ -711,6 +713,8 @@ components:
           type: boolean
         isDefaultVersion:
           type: boolean
+        sourceDomainCname:
+          type: string
         templates:
           type: array
           items:
@@ -825,15 +829,6 @@ components:
                 type: string
               shortCode:
                 type: string
-              sourceDomainCname:
-                type: string
-              firstVersionId:
-                type: integer
-              templates:
-                type: array
-                items:
-                  type: string
-                  pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
   responses:
     UnauthorizedResponse:
       description: Unauthorized– Invalid credentials
