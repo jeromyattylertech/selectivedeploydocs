@@ -675,6 +675,26 @@ paths:
           $ref: '#/components/responses/NotFoundResponse'
         '500':
           description: Internal server error
+  /next_template_implementation:
+    get:
+      tags:
+        - Implementations
+      summary: Returns a single template implementation to deploy
+      description: This endpoint will select a template implementation in the `DEPLOYMENT_REQUESTED` state, move it to the `PENDING` state with a TTL, and return the template implementation details
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateImplementation'
+        '401':
+          $ref: '#/components/responses/UnauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+        '500':
+          description: Internal server error
 
 components:
   schemas:
@@ -738,17 +758,41 @@ components:
           type: string
           format: date-time
         createdBy:
-          type: string
+          $ref: '#/components/schemas/MetadataUser'
         updatedAt:
           type: string
           format: date-time
         updatedBy:
-          type: string
+          $ref: '#/components/schemas/MetadataUser'
         deletedAt:
           type: string
           format: date-time
         deletedBy:
+          $ref: '#/components/schemas/MetadataUser'
+    MetadataUser:
+      type: object
+      properties:
+        uid:
           type: string
+          pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+        displayName:
+          type: string
+    TemplateImplementation:
+      type: object
+      properties:
+        templateImplementationId: 
+          type: integer
+        sourceDomainCname:
+          type: string
+        sourceAssetUid:
+          type: string
+          pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+        targetDomainCname:
+          type: string
+        status:
+          type: string
+          enum: [deployment_requested, deployment_pending, succeeded, failed]
+          example: pending
   parameters:
     SolutionUidPathParam:    
       name: solutionUid
