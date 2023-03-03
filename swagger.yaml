@@ -562,7 +562,7 @@ paths:
       summary: Lists all implementations
       responses:
         '200':
-          description: A response object representing a list of all solution implementations
+          $ref: '#/components/responses/SolutionImplementationsResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
@@ -614,7 +614,7 @@ paths:
         - $ref: '#/components/parameters/ImplementationIdPathParam'
       responses:
         '200':
-          $ref: '#/components/responses/GetImplementationResponse'
+          $ref: '#/components/responses/SolutionImplementationResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
@@ -968,6 +968,122 @@ components:
                           - $ref: '#/components/schemas/ApplicationVersion'
                           - $ref: '#/components/schemas/Metadata'
                 - $ref: '#/components/schemas/Metadata'
+    SolutionImplementationsResponse:
+      description: A response object representing a list of solution implementations
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                solutionUid:
+                  type: string
+                  pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                solutionName:
+                  type: string
+                targetDomainCname:
+                  type: string
+                status:
+                  type: string
+                  enum: [REQUESTED, PENDING, SUCCEEDED, FAILED]
+                applicationImplementations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      applicationUid:
+                        type: string
+                        pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                      applicationName:
+                        type: string
+                      shortCode:
+                        type: string
+                      versionId:
+                        type: integer
+                      versionName:
+                        type: string
+                      sourceDomainCname:
+                        type: string
+                      templateImplementations:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            templateId:
+                              type: integer
+                            sourceDomainCname:
+                              type: string
+                            sourceAssetUid:
+                              type: string
+                              pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                            targetDomainCname:
+                              type: string
+                            targetAssetUid:
+                              type: string
+                              pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                            status:
+                              type: string
+                              enum: [DEPLOYMENT_REQUESTED, DEPLOYMENT_PENDING, SUCCEEDED, FAILED]
+                            statusReason:
+                              type: string
+    SolutionImplementationResponse:
+      description: A response object representing a single solution implementation
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              solutionUid:
+                type: string
+                pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+              solutionName:
+                type: string
+              targetDomainCname:
+                type: string
+              status:
+                type: string
+                enum: [REQUESTED, PENDING, SUCCEEDED, FAILED]
+              applicationImplementations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    applicationUid:
+                      type: string
+                      pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                    applicationName:
+                      type: string
+                    shortCode:
+                      type: string
+                    versionId:
+                      type: integer
+                    versionName:
+                      type: string
+                    sourceDomainCname:
+                      type: string
+                    templateImplementations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          templateId:
+                            type: integer
+                          sourceDomainCname:
+                            type: string
+                          sourceAssetUid:
+                            type: string
+                            pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                          targetDomainCname:
+                            type: string
+                          targetAssetUid:
+                            type: string
+                            pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                          status:
+                            type: string
+                            enum: [DEPLOYMENT_REQUESTED, DEPLOYMENT_PENDING, SUCCEEDED, FAILED]
+                          statusReason:
+                            type: string
     GetImplementationResponse:
       description: A response object representing the implementation of a solution on a target domain, including deployed application versions and templates
       content:
