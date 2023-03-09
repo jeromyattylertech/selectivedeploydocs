@@ -12,7 +12,7 @@ paths:
       summary: Reads all solutions
       description: Returns a list of all solutions, including related applications and templates
       parameters:
-        - $ref: '#/components/parameters/StatusQueryParam'
+        - $ref: '#/components/parameters/EnabledQueryParam'
         - $ref: '#/components/parameters/DivisionIdQueryParam'
       responses:
         '200':
@@ -120,6 +120,12 @@ paths:
                       type: integer
                     versionName:
                       type: string
+                    nickname:
+                      type: string
+                    notes:
+                      type: string
+                    order:
+                      type: integer
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
@@ -204,6 +210,7 @@ paths:
       description: Returns a list of all applications associated with the specified solution, including template data
       parameters:
         - $ref: '#/components/parameters/SolutionUidPathParam'
+        - $ref: '#/components/parameters/EnabledQueryParam'
       responses:
         '200':
           $ref: '#/components/responses/ApplicationsResponse'
@@ -577,25 +584,26 @@ paths:
       summary: Creates a new implementation of a solution, along with related application and template implementations.
       requestBody:
         description: >
-          `solutionId` selects the solution to deploy. `targetDomainId` selects the domain to which to deploy assets. `applicationVersions` must be a mapping of applicationId to applicationVersionKey, and this will selected which version of each application to deploy. If any application in the solution is excluded from this mapping, that application will not be implemented.
+          `solutionUid` selects the solution to deploy. `targetDomainCnames` selects the domains to which the assets will be deployed. `applicationVersions` must be an array of application version IDs, which should include no more than one application version for each application in the solution. If any application in the solution is excluded from this list, that application will not be implemented.
         content:
           application/json:
             schema:
               type: object
               properties:
-                solutionId:
-                  type: integer
-                targetDomainId:
-                  type: integer
+                solutionUid:
+                  type: string
+                  pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                targetDomainCnames:
+                  type: array
+                  items:
+                    type: string
                 applicationVersions:
-                  type: object
-                  additionalProperties: true
-                  example:
-                    13: 'V1'
-                    14: 'V3'
+                  type: array
+                  items:
+                    type: integer
       responses:
         '201':
-          description: Success
+          $ref: '#/components/responses/SolutionImplementationResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedResponse'
         '403':
@@ -627,7 +635,7 @@ paths:
       tags:
         - Implementations
       summary: Deletes an implementation stack
-      description: Deletes a solution implementation, along with associated application implementations and template implementations. At the asset level, this will only disassociate the target assets that have already been deployed from the source assets. It will not delete the deployed assets from the target domain. To clean up already-deployed assets from the target domain, the `/solutionImplementations/{implementationId}/cleanup` endpoint should be used after deleting 
+      description: Deletes a solution implementation, along with associated application implementations and template implementations. Can only be performed if any assets deployed for the associated template implementations have been deleted from the target domain. The latter can be performed with the `/solutionImplementations/{implementationId}/cleanup` endpoint
       parameters:
         - $ref: '#/components/parameters/ImplementationIdPathParam'
       responses:
@@ -655,6 +663,25 @@ paths:
               schema:
                 type: array
                 items:
+                  type: object
+                  properties:
+                    templateId:
+                      type: integer
+                    sourceDomainCname:
+                      type: string
+                    sourceAssetUid:
+                      type: string
+                      pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                    targetDomainCname:
+                      type: string
+                    targetAssetUid:
+                      type: string
+                      pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                    status:
+                      type: string
+                      enum: [DEPLOYMENT_REQUESTED, DEPLOYMENT_PENDING, SUCCEEDED, FAILED]
+                    statusReason:
+                      type: string
                   $ref: '#/components/schemas/Template'
   /solution_implementations/{implementationId}/cleanup:
     post:
@@ -729,6 +756,12 @@ components:
           type: string
         versionName:
           type: string
+        versionNickname:
+          type: string
+        versionNotes:
+          type: string
+        versionOrder:
+          type: integer
         enabled:
           type: boolean
         isDefaultVersion:
@@ -831,14 +864,14 @@ components:
       required: true
       schema:
         type: integer
-    StatusQueryParam:
-      name: status
+    EnabledQueryParam:
+      name: enabled
       in: query
-      description: Status filter
+      description: Enabled filter
       required: false
       schema:
-        type: string
-        enum: [active, inactive]
+        type: boolean
+        example: true
     DivisionIdQueryParam:
       name: divisionId
       in: query
@@ -1003,6 +1036,12 @@ components:
                         type: integer
                       versionName:
                         type: string
+                      versionNickname:
+                        type: string
+                      versionNotes:
+                        type: string
+                      versionOrder:
+                        type: integer
                       sourceDomainCname:
                         type: string
                       templateImplementations:
