@@ -905,7 +905,18 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Solution'
+            type: object
+            properties:
+              name:
+                type: string
+              division_id:
+                type: integer
+              enabled:
+                type: boolean
+              description:
+                type: string
+              notes:
+                type: string
     ApplicationRequest:
       description: An object representing the application to be created.
       required: true
