@@ -4,6 +4,18 @@ info:
   description: API suite for interacting with entities associated with the Selective Deployment of assets from a source domain to a target domain
   version: 0.1.0
 
+servers:
+  - url: https://localhost/api/selective_deploys/v1
+    description: Local development
+  - url: https://cheetah.test-socrata.com/api/selective_deploys/v1
+    description: Staging server
+  - url: https://cheetah.rc-socrata.com/api/selective_deploys/v1
+    description: RC server
+  - url: https://le-cheetah.demo.eu.socrata.com/api/selective_deploys/v1
+    description: EU Production server
+  - url: https://cheetah.demo.socrata.com/api/selective_deploys/v1
+    description: US Production server
+
 paths:
   /solutions:
     get:
