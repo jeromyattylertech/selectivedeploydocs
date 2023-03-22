@@ -529,15 +529,19 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                sourceDomainCname:
-                  type: string
-                sourceViewUid:
-                  type: string
-                  pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
-                cadence:
-                  type: string
+              type: array
+              items:
+                type: object
+                properties:
+                  sourceDomainCname:
+                    type: string
+                  sourceViewUid:
+                    type: string
+                    pattern: '^[a-z0-9]{4}-[a-z0-9]{4}$'
+                  cadence:
+                    type: string
+                    format: cron
+                    example: "* * * * *"
       responses:
         '201':
           description: A response object representing the created template
